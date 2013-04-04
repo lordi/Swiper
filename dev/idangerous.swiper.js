@@ -98,6 +98,7 @@ var Swiper = function (selector, params, callback) {
         createPagination : true,
         pagination : false,
         resistance : true,
+        centerSlide: true,
         scrollContainer : false,
         preventLinks : true,
         initialSlide: 0,
@@ -130,7 +131,8 @@ var Swiper = function (selector, params, callback) {
     
     //Default Vars
     var wrapper, isHorizontal,
-     slideSize, numOfSlides, wrapperSize, direction, isScrolling, containerSize;
+     slideSize, numOfSlides, wrapperSize, direction, isScrolling, containerSize,
+     centerOffset;
     
     //Define wrapper
     for (var i = _this.container.childNodes.length - 1; i >= 0; i--) {
@@ -459,7 +461,8 @@ var Swiper = function (selector, params, callback) {
         }
 
         wrapperSize = isHorizontal ? wrapperWidth : wrapperHeight;
-    
+        centerOffset = (containerSize - slideSize) / 2;
+
         for (var i=0; i<_this.slides.length; i++ ) {
             var el = _this.slides[i];
             if (!_widthFromCSS) {
@@ -485,10 +488,14 @@ var Swiper = function (selector, params, callback) {
                 _this.positions.current = -params.initialSlide * slideWidth;
                 _this.setTransform( _this.positions.current, 0, 0);
             }
-            else {  
+            else {
                 _this.positions.current = -params.initialSlide * slideHeight;
                 _this.setTransform( 0, _this.positions.current, 0);
             }
+        }
+        if (params.centerSlide) {
+            _this.positions.current += centerOffset;
+            _this.setTransform( _this.positions.current, 0, 0);
         }
         
         if (!firstInit) _this.callPlugins('onFirstInit');
@@ -503,7 +510,10 @@ var Swiper = function (selector, params, callback) {
     //Get Max And Min Positions
     function maxPos() {
         var a = (wrapperSize - containerSize);
-        if (params.loop) a = a - containerSize; 
+        if (params.centerSlide) {
+            a += centerOffset;
+        }
+        if (params.loop) a = a - containerSize;
         if (params.scrollContainer) {
             a = slideSize - containerSize;
             if (a<0) a = 0;
@@ -1138,13 +1148,17 @@ var Swiper = function (selector, params, callback) {
 
         var getTranslate = isHorizontal ? _this.getTranslate('x') : _this.getTranslate('y');
         var groupSize = slideSize * params.slidesPerGroup;
-        var newPosition = Math.floor(Math.abs(getTranslate)/Math.floor(groupSize))*groupSize + groupSize; 
+        var newPosition = Math.floor(Math.abs(getTranslate)/Math.floor(groupSize))*groupSize + groupSize;
         var curPos = Math.abs(getTranslate)
+        //console.log("curpos", curPos);
         if (newPosition==wrapperSize) return;
         if (curPos >= maxPos() && !params.loop) return;
+        //console.log("pos", newPosition, maxPos());
+        newPosition -= centerOffset;
         if (newPosition > maxPos() && !params.loop) {
             newPosition = maxPos()
-        };
+        }
+
         if (params.loop) {
             if (newPosition >= (maxPos()+containerSize)) newPosition = maxPos()+containerSize
         }
@@ -1179,6 +1193,10 @@ var Swiper = function (selector, params, callback) {
         
         if (newPosition < 0) newPosition = 0;
         
+        if (params.centerSlide) {
+            newPosition -= centerOffset;
+        }
+
         if (isHorizontal) {
             _this.setTransform(-newPosition,0,0)
         }
@@ -1213,7 +1231,11 @@ var Swiper = function (selector, params, callback) {
         if (params.scrollContainer && (containerSize>slideSize)) {
             newPosition = 0;
         }
-        
+
+        if (params.centerSlide) {
+            newPosition += (-newPosition + centerOffset) % slideSize;
+        }
+
         if (params.mode=='horizontal') {
             _this.setTransform(newPosition,0,0)
         }
@@ -1237,6 +1259,7 @@ var Swiper = function (selector, params, callback) {
     var firstTimeLoopPositioning = true;
     
     _this.swipeTo = function (index, speed, runCallbacks) { 
+        //console.log("swipeTo", index);
     
         index = parseInt(index, 10); //type cast to int
         _this.callPlugins('onSwipeTo', {index:index, speed:speed});
@@ -1301,6 +1324,7 @@ var Swiper = function (selector, params, callback) {
         }
         if (_this.realIndex==numOfSlides) _this.realIndex = numOfSlides-1
         if (_this.realIndex<0) _this.realIndex = 0
+        //console.log(_this.realIndex);
 
         //Update Pagination
         if (params.pagination) {
