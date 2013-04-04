@@ -504,7 +504,6 @@ var Swiper = function (selector, params, callback) {
     }
 
     _this.init()
-
     
     
     //Get Max And Min Positions
@@ -1324,16 +1323,25 @@ var Swiper = function (selector, params, callback) {
         }
         if (_this.realIndex==numOfSlides) _this.realIndex = numOfSlides-1
         if (_this.realIndex<0) _this.realIndex = 0
-        //console.log(_this.realIndex);
+
+        _this.highlightActiveSlide();
 
         //Update Pagination
         if (params.pagination) {
             _this.updatePagination()
         }
-        
     }
-    
-    
+
+    _this.highlightActiveSlide = function (timeout) {
+        if (typeof timeout == 'undefined') timeout = 500;
+        if (typeof jQuery != 'undefined') {
+            for (var i = _this.slides.length - 1; i >= 0; i--) {
+                $(_this.slides[i]).animate({opacity: i == _this.activeSlide ? 1.0 : 0.4}, timeout);
+            }
+        }
+    }
+
+    _this.highlightActiveSlide(0);
     
     /*=========================
       Loop Fixes
