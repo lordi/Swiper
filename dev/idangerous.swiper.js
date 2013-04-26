@@ -475,7 +475,11 @@ var Swiper = function (selector, params, callback) {
         }
         wrapper.style.width = wrapperWidth+"px";
         wrapper.style.height = wrapperHeight+"px";
-        
+
+        if (params.startEndArrows) {
+            $(wrapper).append("<div class='arrows'><div class='left-arrow'>&gt;</div><div class='right-arrow'>&lt;</div></div>");
+        }
+
         // Set Initial Slide Position   
         if(params.initialSlide > 0 && params.initialSlide < numOfSlides && !firstInit) {
             _this.realIndex = _this.activeSlide = params.initialSlide;

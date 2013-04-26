@@ -78,4 +78,40 @@
 	height: 200px;
 }
 
+.swiper-wrapper .arrows {
 
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    width: 100%;
+    z-index: 1000;
+    left: -50px;
+}
+
+.swiper-wrapper .arrows>div {
+    color: #333333;
+    margin: 0;
+    padding: 0;
+    font-size: 40px;
+    text-align:center;
+}
+
+.swiper-wrapper .left-arrow {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    float: left;
+    width: 50px;
+    z-index: 1000;
+}
+
+.swiper-wrapper .right-arrow {
+    position: absolute;
+    top: 0px;
+    z-index: 1000;
+    right: -100px;
+    border: 1px sold red;
+    float: right;
+    width: 50px;
+}
